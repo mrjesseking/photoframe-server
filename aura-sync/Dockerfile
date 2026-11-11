@@ -6,8 +6,8 @@
 # Nothing is fetched from GitHub at build time; the only download is the `requests` library from PyPI.
 FROM python:3.12-alpine
 
-LABEL org.opencontainers.image.source="https://github.com/mrjesseking/photoframe-server" \n      org.opencontainers.image.description="Optional Aura frame sync for the Photo Frame server"
-
+LABEL org.opencontainers.image.source="https://github.com/mrjesseking/photoframe-server" \
+      org.opencontainers.image.description="Optional Aura frame sync for the Photo Frame server"
 RUN pip install --no-cache-dir "requests>=2.31,<3"
 
 COPY downloader /opt/aura-frame-downloader

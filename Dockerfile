@@ -2,8 +2,8 @@
 # image builds and runs on amd64 (NAS, Linux server) and arm64 / arm/v7 (Raspberry Pi 3/4/5).
 FROM python:3.12-alpine
 
-LABEL org.opencontainers.image.source="https://github.com/mrjesseking/photoframe-server" \n      org.opencontainers.image.description="Photo Frame server: serves a photo folder to the Apple TV app"
-
+LABEL org.opencontainers.image.source="https://github.com/mrjesseking/photoframe-server" \
+      org.opencontainers.image.description="Photo Frame server: serves a photo folder to the Apple TV app"
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PHOTO_DIR=/photos \
