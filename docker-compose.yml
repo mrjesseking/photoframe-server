@@ -1,0 +1,51 @@
+# Save this file on the machine that will serve the photos, edit the three marked lines, then run:
+#   docker compose up -d
+# The image is pulled from GitHub's container registry (it runs on Raspberry Pi 3/4/5, Synology
+# and any Linux machine). To build it from this repository's source instead, replace the "image:"
+# line with "build: ." and run: docker compose up -d --build
+services:
+  photoframe-server:
+    image: ghcr.io/mrjesseking/photoframe-server:latest
+    container_name: photoframe-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      TOKEN: "CHANGE-ME-to-a-long-random-string"        # 1. the Apple TV needs this same value
+      SCAN_INTERVAL: "30"                                # seconds between looks for new photos
+    volumes:
+      - /path/to/your/photos:/photos:ro                  # 2. the folder your photos are in (read-only)
+      - photoframe-data:/data                            # remembers the photo index between restarts
+    # 3. Only if the server cannot read your photo folder (common on Synology): run as a user
+    #    that can. Find ids with the command `id <username>` over SSH, then uncomment:
+    # user: "1026:100"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+
+  # OPTIONAL: pulls photos from an Aura frame account into the photo folder (in an "aura"
+  # subfolder) so the Apple TV shows the same photos. Off unless you start it with:
+  #   docker compose --profile aura up -d
+  # It uses a reviewed local copy of the open-source aura-frame-downloader (see aura-sync/downloader).
+  aura-sync:
+    profiles: ["aura"]
+    image: ghcr.io/mrjesseking/photoframe-server-aura-sync:latest
+    container_name: photoframe-aura-sync
+    restart: unless-stopped
+    environment:
+      AURA_EMAIL: "you@example.com"
+      AURA_PASSWORD: "your-aura-password"
+      # name=frame-id, comma separated. The id is the end of https://app.auraframes.com/frame/<id>
+      AURA_FRAMES: "livingroom=00000000-0000-0000-0000-000000000000"
+      AURA_SYNC_INTERVAL: "21600"                        # seconds between pulls (6 hours)
+    volumes:
+      - /path/to/your/photos:/photos                     # the SAME folder as above, but writable
+    # Use the same "user:" as the server if you set one above, so both can read and write the folder.
+    # user: "1026:100"
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+
+volumes:
+  photoframe-data:
